@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register</title>
+    <style>
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: black;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+            border: 2px solid rgba(0, 255, 0, 0.6);
+            box-sizing: border-box;
+        }
+        h2 { color: #0f0; }
+        .input-container {
+            position: relative;
+            margin: 10px 0;
+        }
+        .input-container input {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            background: transparent;
+            color: #0f0;
+            outline: none;
+            font-size: 16px;
+        }
+        .input-container input:focus {
+            box-shadow: 0 0 10px #0f0;
+        }
+        .input-container i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0f0;
+        }
+        button {
+            background: #0f0;
+            color: black;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0c0;
+            box-shadow: 0 0 10px #0f0;
+        }
+        .toggle-btn {
+            background: none;
+            color: #0f0;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #0f0;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.getElementById("login-form");
+            const registerForm = document.getElementById("register-form");
+
+            function toggleForm() {
+                loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
+                registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
+            }
+
+            window.toggleForm = toggleForm;
+
+            function saveUser(username, password) {
+                localStorage.setItem(username, password);
+            }
+
+            function checkLogin(username, password) {
+                return localStorage.getItem(username) === password;
+            }
+
+            function autoLogin() {
+                const savedUser = localStorage.getItem("loggedInUser");
+                if (savedUser) {
+                    window.location.href = `welcome.html?username=${encodeURIComponent(savedUser)}`;
+                }
+            }
+
+            autoLogin();
+
+            window.registerUser = (event) => {
+                event.preventDefault();
+                const username = document.getElementById("register-username").value;
+                const password = document.getElementById("register-password").value;
+                if (localStorage.getItem(username)) {
+                    alert("Username already exists!");
+                } else {
+                    saveUser(username, password);
+                    alert("Registration successful!");
+                    toggleForm();
+                }
+            };
+
+            window.loginUser = (event) => {
+                event.preventDefault();
+                const username = document.getElementById("login-username").value;
+                const password = document.getElementById("login-password").value;
+                if (checkLogin(username, password)) {
+                    localStorage.setItem("loggedInUser", username);
+                    window.location.href = `welcome.html?username=${encodeURIComponent(username)}`;
+                } else {
+                    alert("Invalid username or password!");
+                }
+            };
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div id="login-form">
+            <h2>Login</h2>
+            <form onsubmit="loginUser(event)">
+                <div class="input-container">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="login-username" placeholder="Username" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit">Log In</button>
+            </form>
+            <button class="toggle-btn" onclick="toggleForm()">Don't have an account? Register</button>
+        </div>
+
+        <div id="register-form" style="display: none;">
+            <h2>Register</h2>
+            <form onsubmit="registerUser(event)">
+                <div class="input-container">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="register-username" placeholder="Username" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="register-password" placeholder="Password" required>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+            <button class="toggle-btn" onclick="toggleForm()">Already have an account? Login</button>
+        </div>
+    </div>
+    <div class="footer">
+        Made fully by Sharanas
+    </div>
+</body>
+</html>

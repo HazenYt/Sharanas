@@ -17,7 +17,9 @@
             align-items: center;
             height: 100vh;
             position: relative;
+            overflow: hidden; /* Prevent scrolling due to starfall */
         }
+
         .container {
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
@@ -27,6 +29,10 @@
             text-align: center;
             border: 2px solid rgba(0, 255, 0, 0.6);
             box-sizing: border-box;
+            transition: transform 0.1s ease-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         h2 { color: #0f0; }
         .input-container {
@@ -42,6 +48,7 @@
             color: #0f0;
             outline: none;
             font-size: 16px;
+            box-sizing: border-box;
         }
         .input-container input:focus {
             box-shadow: 0 0 10px #0f0;
@@ -63,6 +70,7 @@
             border-radius: 5px;
             font-weight: bold;
             transition: 0.3s;
+            box-sizing: border-box;
         }
         button:hover {
             background: #0c0;
@@ -84,11 +92,39 @@
             font-size: 14px;
             pointer-events: none;
         }
+
+        /* Starfall Effect */
+        .star {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            animation: fall 3s linear infinite;
+            border-radius: 50%;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const loginForm = document.getElementById("login-form");
             const registerForm = document.getElementById("register-form");
+
+            // Check if user is already logged in
+            function checkLoggedIn() {
+                const loggedInUser = localStorage.getItem("loggedInUser");
+                if (loggedInUser) {
+                    window.location.href = `welcome.html?username=${encodeURIComponent(loggedInUser)}`;
+                }
+            }
+
+            // Redirect if already logged in
+            checkLoggedIn();
 
             function toggleForm() {
                 loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
@@ -104,15 +140,6 @@
             function checkLogin(username, password) {
                 return localStorage.getItem(username) === password;
             }
-
-            function autoLogin() {
-                const savedUser = localStorage.getItem("loggedInUser");
-                if (savedUser) {
-                    window.location.href = `welcome.html?username=${encodeURIComponent(savedUser)}`;
-                }
-            }
-
-            autoLogin();
 
             window.registerUser = (event) => {
                 event.preventDefault();
@@ -138,6 +165,51 @@
                     alert("Invalid username or password!");
                 }
             };
+
+            // Mouse movement effect on login box
+            const container = document.querySelector(".container");
+
+            container.addEventListener("mousemove", (event) => {
+                const { clientX, clientY } = event;
+                const { left, top, width, height } = container.getBoundingClientRect();
+
+                // Calculate the center of the login box
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+
+                // Get the position of the mouse relative to the box
+                const deltaX = clientX - centerX;
+                const deltaY = clientY - centerY;
+
+                // Set the transform property to skew the box based on mouse position
+                container.style.transform = `perspective(1000px) rotateX(${deltaY / 10}deg) rotateY(${-deltaX / 10}deg)`;
+            });
+
+            container.addEventListener("mouseleave", () => {
+                // Reset the transform when the mouse leaves the box
+                container.style.transform = "none";
+            });
+
+            // Starfall effect - creating stars randomly in the background
+            function createStars() {
+                const numStars = 100; // Number of stars to fall
+                const body = document.body;
+
+                for (let i = 0; i < numStars; i++) {
+                    const star = document.createElement("div");
+                    star.classList.add("star");
+
+                    // Randomize the position and animation delay
+                    star.style.left = `${Math.random() * 100}vw`;
+                    star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                    star.style.animationDelay = `${Math.random() * 5}s`;
+
+                    body.appendChild(star);
+                }
+            }
+
+            // Call the function to create stars when the page loads
+            createStars();
         });
     </script>
 </head>

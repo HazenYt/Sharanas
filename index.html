@@ -17,9 +17,7 @@
             align-items: center;
             height: 100vh;
             position: relative;
-            overflow: hidden; /* Prevent scrolling due to starfall */
         }
-
         .container {
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
@@ -29,12 +27,11 @@
             text-align: center;
             border: 2px solid rgba(0, 255, 0, 0.6);
             box-sizing: border-box;
-            transition: transform 0.1s ease-out;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            margin: auto; /* Center the box */
         }
-        h2 { color: #0f0; }
+        h2 {
+            color: #0f0;
+        }
         .input-container {
             position: relative;
             margin: 10px 0;
@@ -70,7 +67,6 @@
             border-radius: 5px;
             font-weight: bold;
             transition: 0.3s;
-            box-sizing: border-box;
         }
         button:hover {
             background: #0c0;
@@ -83,17 +79,7 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        .footer {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            color: #0f0;
-            font-size: 14px;
-            pointer-events: none;
-        }
-
-        /* Starfall Effect */
+        /* Star Animation */
         .star {
             position: absolute;
             top: -10px;
@@ -109,115 +95,85 @@
                 transform: translateY(100vh);
             }
         }
+
+        /* Footer text */
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #0f0;
+            font-size: 14px;
+            pointer-events: none; /* Prevent interaction */
+            user-select: none; /* Prevent text selection */
+        }
     </style>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        let users = {};
+
+        function toggleForm() {
             const loginForm = document.getElementById("login-form");
             const registerForm = document.getElementById("register-form");
+            loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
+            registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
+        }
 
-            // Check if user is already logged in
-            function checkLoggedIn() {
-                const loggedInUser = localStorage.getItem("loggedInUser");
-                if (loggedInUser) {
-                    window.location.href = `welcome.html?username=${encodeURIComponent(loggedInUser)}`;
-                }
+        function register(event) {
+            event.preventDefault();
+            const username = document.getElementById("register-username").value;
+            const email = document.getElementById("register-email").value;
+            const password = document.getElementById("register-password").value;
+
+            if (users[username]) {
+                alert("Username already exists!");
+                return;
             }
+            users[username] = { email, password };
+            alert("Registration successful! You can now log in.");
+            toggleForm();
+        }
 
-            // Redirect if already logged in
-            checkLoggedIn();
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
 
-            function toggleForm() {
-                loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
-                registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
+            if (users[username] && users[username].password === password) {
+                alert("Login successful! Redirecting...");
+                localStorage.setItem('username', username);  // Save username to localStorage
+                window.location.href = "welcome.html";  // Redirect to the welcome page
+            } else {
+                alert("Invalid username or password.");
             }
+        }
 
-            window.toggleForm = toggleForm;
+        // Function to create falling stars
+        function createStars() {
+            const numStars = 100; // Number of stars to fall
+            const body = document.body;
 
-            function saveUser(username, password) {
-                localStorage.setItem(username, password);
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+
+                // Randomize the position and animation delay
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+
+                body.appendChild(star);
             }
+        }
 
-            function checkLogin(username, password) {
-                return localStorage.getItem(username) === password;
-            }
-
-            window.registerUser = (event) => {
-                event.preventDefault();
-                const username = document.getElementById("register-username").value;
-                const password = document.getElementById("register-password").value;
-                if (localStorage.getItem(username)) {
-                    alert("Username already exists!");
-                } else {
-                    saveUser(username, password);
-                    alert("Registration successful!");
-                    toggleForm();
-                }
-            };
-
-            window.loginUser = (event) => {
-                event.preventDefault();
-                const username = document.getElementById("login-username").value;
-                const password = document.getElementById("login-password").value;
-                if (checkLogin(username, password)) {
-                    localStorage.setItem("loggedInUser", username);
-                    window.location.href = `welcome.html?username=${encodeURIComponent(username)}`;
-                } else {
-                    alert("Invalid username or password!");
-                }
-            };
-
-            // Mouse movement effect on login box
-            const container = document.querySelector(".container");
-
-            container.addEventListener("mousemove", (event) => {
-                const { clientX, clientY } = event;
-                const { left, top, width, height } = container.getBoundingClientRect();
-
-                // Calculate the center of the login box
-                const centerX = left + width / 2;
-                const centerY = top + height / 2;
-
-                // Get the position of the mouse relative to the box
-                const deltaX = clientX - centerX;
-                const deltaY = clientY - centerY;
-
-                // Set the transform property to skew the box based on mouse position
-                container.style.transform = `perspective(1000px) rotateX(${deltaY / 10}deg) rotateY(${-deltaX / 10}deg)`;
-            });
-
-            container.addEventListener("mouseleave", () => {
-                // Reset the transform when the mouse leaves the box
-                container.style.transform = "none";
-            });
-
-            // Starfall effect - creating stars randomly in the background
-            function createStars() {
-                const numStars = 100; // Number of stars to fall
-                const body = document.body;
-
-                for (let i = 0; i < numStars; i++) {
-                    const star = document.createElement("div");
-                    star.classList.add("star");
-
-                    // Randomize the position and animation delay
-                    star.style.left = `${Math.random() * 100}vw`;
-                    star.style.animationDuration = `${Math.random() * 3 + 2}s`;
-                    star.style.animationDelay = `${Math.random() * 5}s`;
-
-                    body.appendChild(star);
-                }
-            }
-
-            // Call the function to create stars when the page loads
-            createStars();
-        });
+        // Call the function to create stars when the page loads
+        window.onload = createStars;
     </script>
 </head>
 <body>
     <div class="container">
         <div id="login-form">
-            <h2>Login</h2>
-            <form onsubmit="loginUser(event)">
+            <h2>Welcome</h2>
+            <form onsubmit="login(event)">
                 <div class="input-container">
                     <i class="fas fa-user"></i>
                     <input type="text" id="login-username" placeholder="Username" required>
@@ -230,13 +186,16 @@
             </form>
             <button class="toggle-btn" onclick="toggleForm()">Don't have an account? Register</button>
         </div>
-
         <div id="register-form" style="display: none;">
             <h2>Register</h2>
-            <form onsubmit="registerUser(event)">
+            <form onsubmit="register(event)">
                 <div class="input-container">
                     <i class="fas fa-user"></i>
                     <input type="text" id="register-username" placeholder="Username" required>
+                </div>
+                <div class="input-container">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="register-email" placeholder="Email" required>
                 </div>
                 <div class="input-container">
                     <i class="fas fa-lock"></i>

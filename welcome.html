@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 36px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #0f0;
+            font-size: 14px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        button {
+            background: #0f0;
+            color: black;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0c0;
+        }
+
+        /* Star Animation */
+        .star {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            animation: fall 3s linear infinite;
+            border-radius: 50%;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+    <script>
+        // Function to create falling stars
+        function createStars() {
+            const numStars = 100; // Number of stars to fall
+            const body = document.body;
+
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+
+                // Randomize the position and animation delay
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+
+                body.appendChild(star);
+            }
+        }
+
+        // Call the function to create stars when the page loads
+        window.onload = function() {
+            createStars();
+
+            // Retrieve username from localStorage
+            const username = localStorage.getItem('username');
+            if (username) {
+                document.getElementById("username").textContent = username;
+            } else {
+                // If no username in localStorage, redirect to login page
+                window.location.href = "index.html";
+            }
+        };
+
+        function logout() {
+            // Clear the localStorage and redirect to login page
+            localStorage.removeItem('username');
+            window.location.href = "index.html";
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <h2>Welcome, <span id="username"></span></h2>
+        <p>You have successfully logged in!</p>
+        <button onclick="logout()">Logout</button>
+    </div>
+    <div class="footer">
+        Made fully by Sharanas
+    </div>
+</body>
+</html>
